@@ -26,16 +26,6 @@ people = [person_1, person_2]
 
 interpolation = f"{person_1['name']} {person_2['name']}"
 
-# print(interpolation)
-# print(people)
-
-# for value in person_1.values():
-#     print(value)
-
-# print(person_1.keys())
-# print(person_1.values())
-# print(person_1.items())
-
 for key, value in person_1.items():
     print(f"{key}: {value}")
 
@@ -51,16 +41,14 @@ print(is_value_present)  # True
 
 # == test for equality in value
 # 'is' test for equality in memory
-
 person_1_clone = person_1.copy()
-print(person_1_clone)
 
 print(person_1 == person_1_clone)  # True, test equality in values
 print(person_1_clone is person_1)  # False, test equality in memory
 
 # Since copy makes a shallow copy of the dict, nested dicts
 # are passed by rerefence and changes to them will
-# mutate that dict making changes visible in all dicts the
+# mutate that dict making changes visible in all dicts that
 # reference the same nested dicts as seen below
 person_1_clone["address"]["country"] = "Cuba"
 print(person_1_clone)  # address: { country: Cuba }
@@ -82,18 +70,19 @@ person_1.popitem()  # removes random key and returns it
 
 person_1.update({"name": "Ana"})  # overwrites in this case name
 
-# dictionary comprehension
-string_1 = "ABC"
-string_2 = "123"
-new_dict = {string_1[i]: string_2[i] for i in range(0, len(string_1))}
-print(new_dict)  # { "A": 1, "B": 2, "C": 3}
+# Handling missing key in dict to avoid KeyError with get() method
+jane = {'name': 'Jane', 'age': 20}
 
-parity = {num: "even" if num % 2 == 0 else "odd" for num in range(0, 10)}
-print(parity)
+# By default the second parameter is None if no defined.
+# The second parameter is returned to the user, but no changes are made
+jane.get('address', 'Key does not exists!')
+# ouput
+# Key does not exists!
 
-person_4 = {"name": "Luca", "age": 4, "gender": "male"}
-modified_person_4 = {
-    (k.upper() if k == "name" else k): (v.upper() if type(v) is not int else v)
-    for k, v in person_4.items()
-}
-print(modified_person_4)
+# Handling missing key with setdefult() method
+# The second parameter passed to method will modify the dict adding the
+# provided value to address if it does not exists. In the case, address
+# exists in dict, no changes are made
+jane.setdefault('address', [])
+# output
+# []
