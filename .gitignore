@@ -37,3 +37,9 @@ pip-delete-this-directory.txt
 
 # vs code
 .vscode/
+
+# Pyenv
+.python-version
+
+# Poetry virtual environment
+.venv/

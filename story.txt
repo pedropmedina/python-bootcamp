@@ -1,2 +1,0 @@
-BEFORE ANYTING ELSE IN THIS FILEth, greetings and goodbye 
-This new line gets appended to the story.txt file
