@@ -43,13 +43,24 @@ class Order:
 # The strategies are plain functions. We'll pass functions as promotion arg
 Customer = namedtuple('Customer', 'name fidelity')
 
+# This functions will be use as a decorator
+# By using this decorator we ensure that each new promo functions
+# is added to the promos list without doing to much checking as
+# every time a new function is decorated with promotions, promotions
+# will run adding the decorated function to the list
+def promotions(promo_fn):
+    promos.append(promo_fn)
+    return promo_fn
 
-def fidelity_promo(order):
+
+@promotions
+def fidelity(order):
     """5% discount for customers with 1000 or more fidelity points"""
     return order.total() * 0.05
 
 
-def bulk_item_promo(order):
+@promotions
+def bulk_item(order):
     """10% discount for each LineItem with 20 or more units"""
     discount = 0
     for item in order.cart:
@@ -58,7 +69,8 @@ def bulk_item_promo(order):
     return discount
 
 
-def large_order_promo(order):
+@promotions
+def large_order(order):
     """7% discount for orders with 10 or more distinct items"""
     distinct_items = {item.product for item in order.cart}
     if len(distinct_items) >= 10:
@@ -66,12 +78,13 @@ def large_order_promo(order):
     return 0
 
 
-def best_promo(order):
+@promotions
+def best(order):
     """Select best discount available"""
     return max(promo(order) for promo in promos)
 
 
-promos = [fidelity_promo, bulk_item_promo, large_order_promo]
+promos = [fidelity, bulk_item, large_order]
 
 joe = Customer('John Doe', 0)
 
@@ -81,5 +94,5 @@ cart = [
     LineItem('watermellon', 5, 5.0),
 ]
 
-joe_order = Order(joe, cart, fidelity_promo)
+joe_order = Order(joe, cart, fidelity)
 print(joe_order)
