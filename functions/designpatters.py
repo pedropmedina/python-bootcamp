@@ -80,7 +80,7 @@ def large_order(order):
 
 @promotions
 def best(order):
-    """Select best discount available"""
+    """Select best discount  available"""
     return max(promo(order) for promo in promos)
 
 
