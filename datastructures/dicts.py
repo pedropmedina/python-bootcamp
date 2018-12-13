@@ -1,3 +1,4 @@
+# Some examples taken from Python Cookbook
 person_1 = {
     "name": "Bianca",
     "age": 33,
@@ -70,6 +71,7 @@ person_1.popitem()  # removes random key and returns it
 
 person_1.update({"name": "Ana"})  # overwrites in this case name
 
+# -------------------------------------------------------------------------
 # Handling missing key in dict to avoid KeyError with get() method
 jane = {'name': 'Jane', 'age': 20}
 
@@ -86,3 +88,64 @@ jane.get('address', 'Key does not exists!')
 jane.setdefault('address', [])
 # output
 # []
+
+# -------------------------------------------------------------------------
+# Using zip to invert keys and values in a dictionary
+# Zip returns an iterator that can only be consumed once
+
+# a = ['name', 'age']
+# b = ['jane', 20]
+# zip(a, b) -> [('name', 'jane'), ('age', 20)]
+
+prices = {
+    'ACME': 45.23,
+    'APPL': 612.78,
+    'IBM': 205.55,
+    'HPQ': 37.20,
+    'FB': 10.75,
+}
+
+min_price = min(zip(prices.values(), prices.keys()))
+max_price = max(zip(prices.values(), prices.keys()))
+
+print(min_price)  # (10.75, 'FB')
+print(max_price)  # (612.78, 'APPL')
+
+# min and max will conduct the calculation on the item of each tuple
+# in the iterable returned by zip. Min and max will never reach the second
+# value in each tuple. Min and max can also perform calculation on the
+# string
+
+# We can also sort by price with the help of zip
+sorted_by_price = sorted(zip(prices.values(), prices.items()))
+print(sorted_by_price)
+
+# -------------------------------------------------------------------------
+# Finding commonalities in two dictionaries using "set" operations in
+# their keys, values, or items
+dict1 = {'x': 1, 'y': 2, 'z': 3}
+dict2 = {'w': 10, 'x': 11, 'y': 2}
+
+# Intersection
+print(dict1.keys() & dict2.keys())  # {'x', 'y'}
+print(set(dict1.values()) & set(dict2.values()))  # {2} had to wrap it in set
+print(dict1.items() & dict2.items())  # {('y', 2)}
+
+# Union
+print(dict1.keys() | dict2.keys())  # {'w', 'x', 'z', 'y'}
+print(set(dict1.values()) | set(dict2.values()))  # {1, 2, 3, 10, 11}
+print(
+    dict1.items() | dict2.items()
+)  # {('x', 1), ('w', 10), ('z', 3), ('x', 11), ('y', 2)}
+
+# Difference
+print(dict1.keys() - dict2.keys())  # {'z'}
+print(set(dict1.values()) - set(dict2.values()))  # {1, 3}
+print(dict1.items() - dict2.items())  # {('z', 3), ('x', 1)}
+
+# As explained in Python Cookbook page 16; the keys(), and items() method
+# return a keys-view and items-view objects that support set operations.
+# In contrast to keys() and items() methods, values() method in the
+# dictionary does not support set operations as they aren't guarantee to be
+# unique. To support set operations on values() method, just wrap it in
+# a set()
