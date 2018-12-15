@@ -1,3 +1,7 @@
+import random
+
+# Examples from Mastering Object-oriented Python
+
 # In this version, a trade off is made in the __init__() of each
 # subclass of the Card superclass.
 
@@ -52,11 +56,95 @@ Club, Diamond, Heart, Spade = (
     Suit('Spade', '♠︎'),
 )
 
+# composite objects
+
+# using built in class
 deck = [
     card(rank, suit)
     for rank in range(1, 14)
     for suit in (Club, Diamond, Heart, Spade)
 ]
 
-for d in deck:
-    print(d.rank, d.suit.name, d.suit.symbol, d.soft, d.hard)
+# wrapping a collection class. This wrapper class simply keeps
+# the list in one place by wrapping it and then delegating methods
+# to it. This method can become a bit redundant compare to just using
+# the built in list as shown above
+class Deck2:
+    def __init__(self):
+        self._cards = [
+            card(rank, suit)
+            for rank in range(1, 14)
+            for suit in (Club, Diamond, Heart, Spade)
+        ]
+        random.shuffle(self._cards)
+
+    def pop(self):
+        return self._cards.pop()
+
+
+# Extending a collection. Here we create a subclass of list itself.
+# The list is initialize with super().__init__(). All methods from
+# list will apply to the instance of this class. This method fixes the
+# redundancy from Deck2
+class Deck3(list):
+    def __init__(self):
+        super().__init__(
+            card(rank, suit)
+            for rank in range(1, 14)
+            for suit in (Club, Diamond, Heart, Spade)
+        )
+        random.shuffle(self)
+
+
+# Emulate casino blackjack as dealt from a shoe:
+# Implementing multiple sets of 52 card decks. Instead of initializing list
+# superclass, we start with an empty list super().__init__(), then, we
+# extend the empty list to add as many desks as requested when the class
+# is initialized [defaults to 1]. The list of desks is shuffle, and
+# we select a burn number within the range 1, and 52 which is used to
+# take some cards out of the game
+class Deck4(list):
+    def __init__(self, decks=1):
+        super().__init__()
+        for _ in range(decks):
+            self.extend(
+                card(rank, suit)
+                for rank in range(1, 14)
+                for suit in (Club, Diamond, Heart, Spade)
+            )
+            random.shuffle(self)
+            burn = random.randint(1, 52)
+            for _ in range(burn):
+                self.pop()
+
+
+# Hand description for emulating play strategies
+class Hand:
+    def __init__(self, dealer_card, *cards):
+        self.dealer_card = dealer_card
+        self.cards = list(cards)
+
+    def hard_total(self):
+        return sum(c.hard for c in self.cards)
+
+    def soft_total(self):
+        return sum(c.soft for c in self.cards)
+
+
+# Stateless objects without __init__()
+# Stateless objects are a common design pattern for Strategy objects
+# Strategy object is plugged into a master object to implement algorithm
+# decision that might rely in data from the master or any other data.
+# Strategy objects is a collection of functions
+class GameStrategy:
+    def insurance(self, hand):
+        return False
+
+    def split(self, hand):
+        return False
+
+    def double(self, hand):
+        return False
+
+    def hit(self, hand):
+        return sum(c.hard for c in hand.cards) <= 17
