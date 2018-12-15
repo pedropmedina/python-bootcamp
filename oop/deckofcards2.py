@@ -1,3 +1,4 @@
+import abc
 import random
 
 # Examples from Mastering Object-oriented Python
@@ -131,6 +132,27 @@ class Hand:
         return sum(c.soft for c in self.cards)
 
 
+# Using static methods for initialization of Hand
+class Hand1:
+    def __init__(self, dealer_card, *cards):
+        self.dealer_card = dealer_card
+        self.cards = list(cards)
+
+    @staticmethod
+    def freeze(other):
+        hand = Hand1(other.dealer_card, *other.cards)
+        return hand
+
+    @staticmethod
+    def split(other, card0, card1):
+        hand0 = Hand1(other.dealer_card, other.cards[0], card0)
+        hand1 = Hand1(other.dealer_card, other.cards[1], card1)
+        return hand0, hand1
+
+    def __str__(self):
+        return ', '.join(map(str, self.cards))
+
+
 # Stateless objects without __init__()
 # Stateless objects are a common design pattern for Strategy objects
 # Strategy object is plugged into a master object to implement algorithm
@@ -148,3 +170,73 @@ class GameStrategy:
 
     def hit(self, hand):
         return sum(c.hard for c in hand.cards) <= 17
+
+
+d = Deck4()
+
+
+class Table:
+    def __init__(self):
+        self.deck = Deck4()
+
+    def place_bet(self, amount):
+        print('Bet', amount)
+
+    def get_hand(self):
+        try:
+            self.hand = Hand(d.pop(), d.pop(), d.pop())
+            self.hole_card = d.pop()
+        except IndexError:
+            # Out of cards: need to shuffle
+            self.deck = Deck4()
+            return self.get_hand()
+        print('Deal', self.hand)
+
+    def can_insure(self, hand):
+        return hand.dealer_card.insure
+
+
+# Abstract superclass
+# It defines the methods with default values
+# The subclass can override the methods or use them in the
+# superclass if needed
+class BettingStrategy:
+    def bet(self):
+        raise NotImplementedError('No bet method')
+
+    def record_win(self):
+        pass
+
+    def record_loss(self):
+        pass
+
+
+# The abstract class can be formalized with the usage of the abc module
+# The advantage of using abc module is that by using the abstractmethod
+# decorator, we ensure that any subclass must define the bet method, otherwise
+# an exception will be raised
+# We still can access the bet() method in the superclass with super().bet()
+class BettingStrategy1(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def bet(self):
+        return 1
+
+    def record_win(self):
+        pass
+
+    def record_loss(self):
+        pass
+
+
+class Player:
+    def __init__(self, table, bet_strategy, game_strategy):
+        self.bet_strategy = bet_strategy
+        self.game_strategy = game_strategy
+        self.table = table
+
+    def game(self):
+        self.table.place_bet(self.bet_strategy.bet())
+        self.hand = self.table.get_hand()
+        if self.table.can_insure(self.hand):
+            if self.game_strategy.insurance(self.hand):
+                self.table.insurance(self.bet_strategy.bet())
